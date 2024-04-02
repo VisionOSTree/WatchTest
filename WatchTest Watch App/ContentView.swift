@@ -10,15 +10,39 @@ import HealthKit
 
 struct ContentView: View {
     @State private var heartRate: Double = 0
+    @State var stop: Bool = false
+    @State var count: Int = 0
+
+
+    func callFunc() {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                self.getHeartRate()
+                print("got heart rate: \(count)")
+                count = count + 1
+                if !stop {
+                    callFunc()
+                }
+            }
+        }
+    
     var body: some View {
         VStack {
             Text("Your heart rate is: \(heartRate)")
-            Button(action: self.getHeartRate, label: {
-                Text("Get heart rate")
+            Button(action: startStop, label: {
+                Text("stopped: \(stop)")
             })
         }
-        .padding()
     }
+        
+        private func startStop(){
+            if stop { //Continue loop
+                stop = false
+                callFunc()
+            } else { //Stop loop
+                stop = true
+            }
+        }
+        
     
     private func getHeartRate(){
         let healthStore = HKHealthStore()
